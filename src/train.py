@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import joblib
 import matplotlib.pyplot as plt
+import json
 
 from xgboost import XGBRegressor
 from sklearn.model_selection import TimeSeriesSplit
@@ -42,6 +43,13 @@ df = df.groupby("datetime", as_index=False)["energy"].mean()
 df = df.set_index("datetime")
 
 df = df.resample("h").mean()
+
+# remove last day if incomplete
+hour_count = df.groupby(df.index.date).size()
+
+if hour_count.iloc[-1] < 24:
+    last_day = hour_count.index[-1]
+    df = df[df.index.date != last_day]
 
 df["energy"] = df["energy"].interpolate()
 
@@ -152,6 +160,20 @@ for train_index, test_index in tscv.split(X):
 
     model.fit(X_train, y_train)
 
+
+# SAVE FEATURE IMPORTANCE
+    importance = model.feature_importances_
+
+    feature_importance = {
+        feature: float(score)
+        for feature, score in zip(features, importance)
+    }
+
+    with open("models/feature_importance.json", "w") as f:
+        json.dump(feature_importance, f, indent=4)
+
+    print("Feature importance saved")
+
     preds = model.predict(X_test)
 
     mae = mean_absolute_error(y_test, preds)
@@ -167,6 +189,17 @@ print("\nCross Validation Results")
 print("Average MAE:", np.mean(mae_scores))
 print("Average RMSE:", np.mean(rmse_scores))
 print("Average R2:", np.mean(r2_scores))
+
+metrics = {
+    "MAE": float(np.mean(mae_scores)),
+    "RMSE": float(np.mean(rmse_scores)),
+    "R2": float(np.mean(r2_scores))
+}
+
+with open("models/model_metrics.json", "w") as f:
+    json.dump(metrics, f, indent=4)
+
+print("Metrics saved")
 
 
 # =========================
