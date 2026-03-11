@@ -13,7 +13,7 @@ Machine learning project for forecasting electricity consumption using XGBoost a
 ## Project Structure
 
 dataset/
-models/
+models/dvsdf
 src/
 dashboard/
 
