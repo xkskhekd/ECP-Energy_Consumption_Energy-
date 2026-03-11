@@ -19,7 +19,7 @@ dashboard/
 
 ## Run the project
 
-Install dependencies:
+Install dependencies:fafdfg
 
 pip install -r requirements.txt
 
