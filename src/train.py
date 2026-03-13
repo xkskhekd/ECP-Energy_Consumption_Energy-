@@ -142,6 +142,10 @@ mae_scores = []
 rmse_scores = []
 r2_scores = []
 
+eval_dates = []
+eval_actual = []
+eval_pred = []
+
 for train_index, test_index in tscv.split(X):
 
     X_train, X_test = X.iloc[train_index], X.iloc[test_index]
@@ -175,6 +179,12 @@ for train_index, test_index in tscv.split(X):
     print("Feature importance saved")
 
     preds = model.predict(X_test)
+    
+    dates = X_test.index
+
+    eval_dates.extend(dates)
+    eval_actual.extend(y_test.values)
+    eval_pred.extend(preds)
 
     mae = mean_absolute_error(y_test, preds)
     rmse = np.sqrt(mean_squared_error(y_test, preds))
@@ -200,6 +210,18 @@ with open("models/model_metrics.json", "w") as f:
     json.dump(metrics, f, indent=4)
 
 print("Metrics saved")
+
+evaluation_df = pd.DataFrame({
+    "date": eval_dates,
+    "actual": eval_actual,
+    "predicted": eval_pred
+})
+
+evaluation_df = evaluation_df.sort_values("date")
+
+evaluation_df.to_csv("models/model_evaluation.csv", index=False)
+
+print("Model evaluation data saved")
 
 
 # =========================
