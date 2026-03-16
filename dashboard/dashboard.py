@@ -34,12 +34,6 @@ colA.metric("Dataset Start", start_data.strftime("%Y-%m-%d"))
 colB.metric("Dataset End", end_data.strftime("%Y-%m-%d"))
 colC.metric("Total Rows", len(df_info))
 
-# =========================
-
-# FEATURE IMPORTANCE
-
-# =========================
-
 with open("models/feature_importance.json", "r") as f:importance = json.load(f)
 
 imp_df = pd.DataFrame(
@@ -59,23 +53,11 @@ ax2.set_ylabel("Feature")
 
 st.pyplot(fig2)
 
-# =========================
-
-# MODEL EVALUATION DATA
-
-# =========================
-
 eval_df = pd.read_csv("models/model_evaluation.csv")
 
 eval_df["date"] = pd.to_datetime(eval_df["date"])
 
 eval_df = eval_df.sort_values("date")
-
-# =========================
-
-# MODEL EVALUATION CHART
-
-# =========================
 
 st.subheader("Model Evaluation: Actual vs Prediction")
 
@@ -108,12 +90,6 @@ st.pyplot(fig_eval)
 @st.cache_data
 def run_forecast(start, end):return generate_forecast(start, end)
 
-# =============================
-
-# Load dataset untuk menentukan batas tanggal
-
-# =============================
-
 df = pd.read_csv("dataset/PJME_hourly.csv")
 
 df.columns = ["datetime", "energy"]
@@ -123,12 +99,6 @@ df["datetime"] = pd.to_datetime(df["datetime"])
 last_date = df["datetime"].max()
 
 min_date = (last_date + pd.Timedelta(days=1)).date()
-
-# =============================
-
-# Input tanggal
-
-# =============================
 
 start_date = st.date_input(
     "Forecast start date",
@@ -143,12 +113,6 @@ end_date = st.date_input(
     value=default_end,
     min_value=start_date
 )
-
-# =============================
-
-# Run Forecast
-
-# =============================
 
 if st.button("Run Forecast"):
 

@@ -8,11 +8,6 @@ from xgboost import XGBRegressor
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
-
-# =========================
-# LOAD DATA
-# =========================
-
 df = pd.read_csv("dataset/PJME_hourly.csv")
 df.columns = ["datetime", "energy"]
 
@@ -21,24 +16,9 @@ df["datetime"] = pd.to_datetime(df["datetime"])
 print("Dataset loaded")
 print("Rows:", len(df))
 
-
-# =========================
-# SORT TIMESTAMP
-# =========================
-
 df = df.sort_values("datetime")
 
-
-# =========================
-# HANDLE DUPLICATE DST HOURS
-# =========================
-
 df = df.groupby("datetime", as_index=False)["energy"].mean()
-
-
-# =========================
-# ENSURE HOURLY CONTINUITY
-# =========================
 
 df = df.set_index("datetime")
 
@@ -57,19 +37,9 @@ df = df.reset_index()
 
 print("After cleaning rows:", len(df))
 
-
-# =========================
-# RESAMPLE HOURLY → DAILY
-# =========================
-
 daily_df = df.resample("D", on="datetime").sum()
 
 print("Daily rows:", len(daily_df))
-
-
-# =========================
-# FEATURE ENGINEERING
-# =========================
 
 daily_df["day_of_week"] = daily_df.index.dayofweek
 daily_df["month"] = daily_df.index.month
@@ -81,11 +51,6 @@ daily_df["dow_cos"] = np.cos(2 * np.pi * daily_df["day_of_week"] / 7)
 daily_df["month_sin"] = np.sin(2 * np.pi * daily_df["month"] / 12)
 daily_df["month_cos"] = np.cos(2 * np.pi * daily_df["month"] / 12)
 
-
-# =========================
-# LAG FEATURES
-# =========================
-
 daily_df["lag_1"] = daily_df["energy"].shift(1)
 daily_df["lag_7"] = daily_df["energy"].shift(7)
 daily_df["lag_14"] = daily_df["energy"].shift(14)
@@ -94,11 +59,6 @@ daily_df["lag_28"] = daily_df["energy"].shift(28)
 daily_df["lag_30"] = daily_df["energy"].shift(30)
 daily_df["lag_365"] = daily_df["energy"].shift(365)
 
-
-# =========================
-# ROLLING FEATURES
-# =========================
-
 daily_df["rolling_mean_7"] = daily_df["energy"].shift(1).rolling(7).mean()
 daily_df["rolling_mean_14"] = daily_df["energy"].shift(1).rolling(14).mean()
 
@@ -106,11 +66,6 @@ daily_df["rolling_mean_14"] = daily_df["energy"].shift(1).rolling(14).mean()
 daily_df = daily_df.dropna()
 
 print("Final dataset size:", daily_df.shape)
-
-
-# =========================
-# FEATURE SELECTION
-# =========================
 
 features = [
     "lag_1",
@@ -130,11 +85,6 @@ features = [
 
 X = daily_df[features]
 y = daily_df["energy"]
-
-
-# =========================
-# TIME SERIES CROSS VALIDATION
-# =========================
 
 tscv = TimeSeriesSplit(n_splits=5)
 
@@ -223,27 +173,12 @@ evaluation_df.to_csv("models/model_evaluation.csv", index=False)
 
 print("Model evaluation data saved")
 
-
-# =========================
-# TRAIN FINAL MODEL
-# =========================
-
 model.fit(X, y)
-
-
-# =========================
-# SAVE MODEL
-# =========================
 
 joblib.dump(model, "models/energy_model.pkl")
 joblib.dump(features, "models/model_features.pkl")
 
 print("\nModel saved")
-
-
-# =========================
-# VISUALIZATION
-# =========================
 
 plt.figure(figsize=(15,5))
 
