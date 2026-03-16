@@ -1,126 +1,94 @@
-Energy Consumption Forecast
+# Energy Consumption Forecast
 
-Simple machine learning project to predict future electricity consumption based on historical usage data.
-Model dilatih menggunakan gradient boosted trees (XGBoost) dengan pendekatan time-series forecasting dan divisualisasikan melalui Streamlit dashboard.
+Small machine learning project to predict future electricity consumption based on historical usage data.
 
-Project ini dibuat sebagai latihan membangun pipeline ML end-to-end: mulai dari data preprocessing, feature engineering, training model, sampai deployment sederhana lewat dashboard.
+Model menggunakan **XGBoost regression** dengan pendekatan **time-series forecasting**.
+Hasil training dan forecasting dapat dilihat melalui **Streamlit dashboard**.
 
-Project Structure
+Project ini dibuat untuk latihan membangun pipeline ML sederhana dari data → model → visualization.
+
+---
+
+## Project Structure
+
+```
 energy-consumption-forecast/
+│
+├── dataset/
+│   └── PJME_hourly.csv
+│
+├── models/
+│   ├── energy_model.pkl
+│   ├── model_features.pkl
+│   ├── model_metrics.json
+│   ├── feature_importance.json
+│   └── model_evaluation.csv
+│
+├── src/
+│   ├── train.py
+│   └── forecast.py
+│
+└── dashboard/
+    └── dashboard.py
+```
 
-dataset/
-    PJME_hourly.csv
+---
 
-models/
-    energy_model.pkl
-    model_features.pkl
-    model_metrics.json
-    feature_importance.json
-    model_evaluation.csv
+## Features
 
-src/
-    train.py
-    forecast.py
+Model menggunakan beberapa fitur time-series sederhana:
 
-dashboard/
-    dashboard.py
+* lag features (1, 7, 14, 21, 28, 30, 365)
+* rolling mean (7 dan 14 hari)
+* cyclical encoding untuk day-of-week dan month
 
-dataset/
-Raw hourly electricity consumption data.
+Tujuannya agar model bisa menangkap **weekly pattern** dan **seasonal behaviour** dari konsumsi energi.
 
-models/
-Model artifacts hasil training:
+---
 
-trained model
-
-feature list
-
-evaluation metrics
-
-feature importance
-
-prediction results
-
-src/
-Core machine learning scripts:
-
-training pipeline
-
-forecasting logic
-
-dashboard/
-Streamlit dashboard untuk melihat performa model dan menjalankan forecast.
-
-Features
-
-Beberapa fitur time-series yang digunakan:
-
-Lag features (lag_1, lag_7, lag_14, dst)
-
-Rolling statistics (7-day dan 14-day mean)
-
-Cyclical time encoding untuk day-of-week dan month
-
-Pendekatan ini membantu model menangkap weekly pattern dan seasonality pada konsumsi energi.
-
-Model
-
-Model yang digunakan:
-
-XGBoost Regressor
-
-Training dilakukan dengan TimeSeriesSplit cross validation agar urutan waktu tetap terjaga.
-
-Metrics yang digunakan:
-
-MAE (Mean Absolute Error)
-
-RMSE (Root Mean Squared Error)
-
-R² Score
-
-Training
+## Training
 
 Untuk melatih model:
 
+```
 python src/train.py
+```
 
 Script ini akan:
 
-load dan clean dataset
+* load dataset
+* preprocessing data
+* generate features
+* train model menggunakan TimeSeriesSplit
+* menyimpan model ke folder `models/`
 
-generate features
+---
 
-train model
+## Dashboard
 
-evaluate performa
-
-menyimpan model ke folder models/
-
-Dashboard
-
-Dashboard dibuat menggunakan Streamlit untuk melihat hasil model dan menjalankan prediksi.
+Dashboard dibuat menggunakan **Streamlit**.
 
 Jalankan dengan:
 
+```
 streamlit run dashboard/dashboard.py
+```
 
-Dashboard menampilkan:
+Di dashboard kamu bisa:
 
-model metrics
+* melihat model metrics
+* melihat feature importance
+* membandingkan actual vs predicted
+* menjalankan forecast
+* export hasil forecast ke CSV
 
-feature importance
+---
 
-actual vs predicted plot
+## Dependencies
 
-energy consumption forecast
+Library utama yang digunakan:
 
-export forecast ke CSV
-
-Requirements
-
-Beberapa dependency utama:
-
+```
 pandas
 numpy
 xgboost
@@ -128,22 +96,17 @@ scikit-learn
 matplotlib
 streamlit
 joblib
+```
 
 Install dengan:
 
+```
 pip install -r requirements.txt
-Notes
+```
 
-Project ini dibuat sebagai learning project untuk memahami pipeline forecasting sederhana menggunakan machine learning.
+---
 
-Masih banyak kemungkinan pengembangan, misalnya:
+## Notes
 
-hyperparameter tuning
-
-tambahan time-series features
-
-experiment tracking
-
-model comparison
-
-API untuk inference
+Project ini merupakan implementasi sederhana untuk memahami workflow forecasting dengan machine learning.
+Masih banyak ruang untuk pengembangan seperti hyperparameter tuning, experiment tracking, atau deployment sebagai API.
